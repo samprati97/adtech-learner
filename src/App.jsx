@@ -822,7 +822,10 @@ Return exactly:
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 800,
           system: `Technical interviewer at AdTech company. Candidate: Samprati Kothari, 3.5 yrs AdOps (RTB/HB/DSP/SSP, Undertone), 2.5 yrs Linux/Ansible, AWS SAA cert. Topic: ${t?.label}. Give feedback on their answer (good/missing), ideal answer briefly, rate (Needs Work/Good/Excellent), ask next question. Concise.`,
-          messages: next.map(m => ({ role: m.role, content: m.content }))
+          messages: [
+            { role: "user", content: `Start the ${t?.label} interview.` },
+            ...next.map(m => ({ role: m.role, content: m.content }))
+          ]
         })
       });
       const data = await res.json();
@@ -1262,7 +1265,7 @@ Return exactly:
             <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
               TODAY — Week {currentWeek}, Day {currentDay} · {todayWeek?.label}
             </div>
-            <div style={{ fontSize: 14, color: "#F8FAFC", lineHeight: 1.6, fontWeight: 500, marginBottom: 12 }}>{todayTask}</div>
+            <div style={{ fontSize: 14, color: "#F8FAFC", lineHeight: 1.6, fontWeight: 500, marginBottom: 12 }}>{todayTask.task}</div>
             <button
               onClick={() => toggleDay(currentWeek, currentDay)}
               style={{
