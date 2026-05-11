@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useState, useEffect, useRef } from "react";
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────
 const store = {
@@ -517,7 +516,141 @@ const QUIZZES = {
   ]
 };
 
-// ── COMPONENT ─────────────────────────────────────────────────────────────────
+// ── ROADMAP DATA ──────────────────────────────────────────────────────────────
+const ROADMAP = [
+  {
+    phase: 1, label: "Docker + Linux", months: "Month 1", color: "#0EA5E9",
+    goal: "Write Dockerfiles, run containers, debug networking issues confidently in an interview.",
+    weeks: [
+      { week: 1, label: "Docker — Foundations", days: [
+        { day: 1, task: "Install Docker. Run first containers (nginx, python). Understand pull/push to Docker Hub. docker ps, docker logs, docker exec." },
+        { day: 2, task: "Write a Dockerfile for a Python Flask app. Build and run it locally. Understand what each instruction does." },
+        { day: 3, task: "Multi-stage builds — shrink an image from 500MB to 50MB. Practice layer caching order: copy requirements BEFORE copying code." },
+        { day: 4, task: "docker-compose — run a 2-container stack (Flask + nginx reverse proxy). Configure networks and volumes." },
+        { day: 5, task: "Review: .dockerignore, image tagging strategy, Docker Hub push. Take the Docker quiz in the app." },
+      ]},
+      { week: 2, label: "Docker — Advanced + Linux Start", days: [
+        { day: 1, task: "Docker networking deep dive: bridge, host, none modes. Connect two containers by service name (not localhost)." },
+        { day: 2, task: "Docker volumes: persistent storage, bind mounts vs named volumes. Run a MySQL container with a named volume." },
+        { day: 3, task: "Linux: systemd service management. systemctl start/stop/enable/status. journalctl -u service -f. Write a .service unit file." },
+        { day: 4, task: "Linux: process management. ps aux, top, htop, kill -15 vs -9. Find what's using a port with ss -tulnp." },
+        { day: 5, task: "Linux: cron jobs and log rotation. Write a crontab entry. Configure logrotate for an app log." },
+      ]},
+      { week: 3, label: "Linux + Shell Scripting", days: [
+        { day: 1, task: "Linux performance investigation playbook: uptime (load avg), top (CPU), free -h (memory), df -h (disk), iostat (I/O). Drill this until it's automatic." },
+        { day: 2, task: "Network debugging: ss -tulnp, tcpdump -i eth0 port 80, curl -v, dig. Find open ports, capture traffic for 30s." },
+        { day: 3, task: "Shell scripting script 1: Log parser — reads an access.log, counts HTTP status codes, outputs top 5 error URLs. set -euo pipefail." },
+        { day: 4, task: "Shell scripting script 2: Health check — pings 3 services, logs result with timestamp, exits non-zero if any fail." },
+        { day: 5, task: "Shell scripting script 3: Service monitor — watches a service, restarts if down, alerts after 3 restarts. Uses flock for single-instance." },
+      ]},
+      { week: 4, label: "Project — Dockerised Ad Server", days: [
+        { day: 1, task: "Build the project app: Python Flask serving mock ad responses. Endpoint: GET /ad?zone=123 returns JSON {creative_url, bid_price, dsp}." },
+        { day: 2, task: "Dockerize with multi-stage build. Add nginx as reverse proxy in docker-compose. Health check endpoint at /health." },
+        { day: 3, task: "Shell scripting scripts 4+5: Cleanup automation (removes old Docker images/logs) and a deploy script (build, tag, push)." },
+        { day: 4, task: "Push to GitHub. Write a solid README with architecture, how to run, and what it simulates. Add .dockerignore and .gitignore." },
+        { day: 5, task: "Interview practice: Docker + Linux topics in the app. Can you answer the image-size scenario and the slow-server investigation cold?" },
+      ]},
+    ]
+  },
+  {
+    phase: 2, label: "Kubernetes + CI/CD", months: "Months 2–3", color: "#8B5CF6",
+    goal: "Deploy, scale, and debug apps on K8s. Build a CI/CD pipeline. This is the #1 interview topic.",
+    weeks: [
+      { week: 5, label: "K8s — Core Objects", days: [
+        { day: 1, task: "Install minikube (free, local). kubectl basics: apply, get, describe, logs, exec, delete. Deploy first pod and service." },
+        { day: 2, task: "Deployments and ReplicaSets: write a deployment.yaml for the ad server. kubectl rollout status, rollout undo." },
+        { day: 3, task: "Services: ClusterIP (internal), NodePort (external for testing), LoadBalancer. Expose the ad server. Understand kube-proxy." },
+        { day: 4, task: "ConfigMaps and Secrets: inject env vars and config files into pods. Practice: never hardcode DSP endpoint in container image." },
+        { day: 5, task: "Namespaces: create dev and prod namespaces. Resource requests and limits. kubectl top pods. Take K8s quiz." },
+      ]},
+      { week: 6, label: "K8s — Reliability", days: [
+        { day: 1, task: "Liveness vs Readiness probes: add both to the ad server deployment. Debug a failing readiness probe (wrong path/port)." },
+        { day: 2, task: "Persistent Volumes (PV/PVC). Run MySQL in K8s with a PVC. Understand why StatefulSet, not Deployment, for databases." },
+        { day: 3, task: "Ingress controller (nginx): install with minikube addons. Route /ad to ad-server and /admin to a dashboard service." },
+        { day: 4, task: "DaemonSets: deploy a log forwarder (fluentd or filebeat) to every node. Understand when DaemonSet vs Deployment." },
+        { day: 5, task: "Debug drill: reproduce each of the 5 K8s error states (CrashLoopBackOff, OOMKilled, Pending, ImagePullBackOff, 0/1 Ready) and fix them." },
+      ]},
+      { week: 7, label: "K8s — Autoscaling + Security", days: [
+        { day: 1, task: "HPA: configure autoscaling on CPU (target 50%). Use hey or k6 to load test the ad server and watch pods scale. This is the AdTech interview scenario." },
+        { day: 2, task: "Node affinity, taints, and tolerations: schedule ad-server pods only on 'high-performance' nodes. Simulate with node labels." },
+        { day: 3, task: "K8s RBAC: create a ServiceAccount for the ad server with only the permissions it needs. Role + RoleBinding." },
+        { day: 4, task: "Sealed Secrets: install the controller, create a sealed secret from a plaintext secret, commit it safely to git." },
+        { day: 5, task: "Architecture review: draw the full K8s architecture for the ad server (Deployment, Service, Ingress, HPA, ConfigMap, Secret). Interview practice." },
+      ]},
+      { week: 8, label: "CI/CD — GitHub Actions", days: [
+        { day: 1, task: "GitHub Actions fundamentals: workflows, jobs, steps, triggers (push, PR, schedule). Write a hello-world workflow that runs on push to main." },
+        { day: 2, task: "Add CI: checkout → lint (flake8) → run pytest. Use actions/cache for pip deps. Pipeline should pass in <2 minutes." },
+        { day: 3, task: "Add Docker build + push: build multi-stage image, push to Docker Hub or GitHub Container Registry (GHCR). Tag with git SHA." },
+        { day: 4, task: "Add K8s deploy step: kubectl set image deployment/ad-server using the new SHA tag. Full CI/CD end to end." },
+        { day: 5, task: "Branch protection: require passing CI before merge to main. Add pipeline caching for Docker layers. Take CI/CD quiz." },
+      ]},
+      { week: 9, label: "CI/CD — Advanced", days: [
+        { day: 1, task: "Canary deployment: route 10% of traffic to new version via K8s. Monitor for 5 minutes before promoting to 100%." },
+        { day: 2, task: "Blue/Green deployment: two identical K8s deployments. Switch the Service selector instantly. Practice rollback in <30 seconds." },
+        { day: 3, task: "Secrets in CI/CD: GitHub Secrets, masked logs, never echo keys. Practice: add DOCKER_PASSWORD to GitHub Secrets, verify it's masked in logs." },
+        { day: 4, task: "Post-deploy smoke tests: curl the ad server /ad endpoint after deploy, assert response is valid JSON, auto-rollback if not." },
+        { day: 5, task: "Interview practice: the 45-min pipeline optimisation scenario + the win-rate-dropped rollback scenario. Time yourself." },
+      ]},
+      { week: 10, label: "Project — K8s + CI/CD", days: [
+        { day: 1, task: "Write full Kubernetes manifests for the ad server: Deployment, Service, Ingress, ConfigMap, Sealed Secret, resource limits." },
+        { day: 2, task: "Add HPA with CPU target 60%. Add liveness probe (/health, 5s period) and readiness probe (/ready, 3s period, 5s delay)." },
+        { day: 3, task: "Build the complete GitHub Actions pipeline: test → build Docker → push to GHCR → kubectl apply to minikube." },
+        { day: 4, task: "Add automated rollback: if /health returns non-200 for 2 consecutive checks post-deploy, run kubectl rollout undo." },
+        { day: 5, task: "Portfolio: add K8s + CI/CD architecture diagram to GitHub README. Interview practice for K8s and CI/CD. Quizzes." },
+      ]},
+    ]
+  },
+  {
+    phase: 3, label: "Terraform + AWS", months: "Months 3–4", color: "#059669",
+    goal: "Write real Terraform to provision AWS infra. Tie to existing AWS SAA knowledge.",
+    weeks: [
+      { week: 11, label: "Terraform — Foundations", days: [
+        { day: 1, task: "Install Terraform. Write first resource: aws_instance (t2.micro on free tier). terraform init → plan → apply → destroy. Understand state." },
+        { day: 2, task: "Variables, outputs, data sources: parameterise the EC2 instance. Use data source to find latest Ubuntu AMI. Output the public IP." },
+        { day: 3, task: "Remote state: configure S3 backend + DynamoDB locking table. Migrate local state to S3. Test concurrent apply protection." },
+        { day: 4, task: "Modules: write a vpc module with variables (cidr, env). Create dev and prod environments calling the same module." },
+        { day: 5, task: "terraform import: create an EC2 manually in AWS console, import it into Terraform state, write the matching HCL. Take Terraform quiz." },
+      ]},
+      { week: 12, label: "Terraform — Real Infrastructure", days: [
+        { day: 1, task: "Full VPC from scratch: 10.0.0.0/16, public subnets (2 AZs), private subnets (2 AZs), IGW, NAT Gateway, route tables. Verify with AWS console." },
+        { day: 2, task: "EC2 in private subnet. Security groups with least-privilege (app SG only from ALB SG). Bastion host in public subnet for SSH." },
+        { day: 3, task: "RDS MySQL in DB subnets. Add lifecycle { prevent_destroy = true } and deletion_protection. Verify you cannot accidentally destroy it." },
+        { day: 4, task: "S3 bucket with versioning, lifecycle rules (move to IA after 30 days). IAM role for EC2 to access S3 without hardcoded keys." },
+        { day: 5, task: "Destroy everything and reprovision from scratch in <10 minutes. The reprovision-from-scratch test shows IaC is real. Take AWS quiz." },
+      ]},
+      { week: 13, label: "AWS + ECS Deep Dive", days: [
+        { day: 1, task: "ECS with Fargate: write a task definition for the ad server container. Create a Service in the private subnet. Fargate — no EC2 to manage." },
+        { day: 2, task: "ALB for ECS: create ALB in public subnet, listener on 443, target group pointing to ECS tasks. Configure health check at /health." },
+        { day: 3, task: "CloudWatch: create alarms for ECS CPU >80%, error rate >1%, p99 latency >100ms. Log Insights query to find top errors." },
+        { day: 4, task: "IAM deep dive: cross-account role assumption (dev role → prod read-only). Permission boundaries. Understand explicit Deny wins." },
+        { day: 5, task: "Cost optimisation: add Spot instances to ECS capacity provider. Estimate savings vs on-demand. Set up a budget alarm. Take AWS quiz." },
+      ]},
+      { week: 14, label: "Ansible + Monitoring", days: [
+        { day: 1, task: "Ansible: install, write inventory file, ad-hoc commands (ping, shell). First playbook: install Docker on an EC2 instance." },
+        { day: 2, task: "Ansible playbook that fully configures a fresh EC2: Docker, nginx, cron job, logrotate. Idempotent — safe to run twice." },
+        { day: 3, task: "Terraform + Ansible together: Terraform creates EC2, outputs IP to an Ansible inventory file, Ansible configures it in the same run." },
+        { day: 4, task: "Prometheus + Grafana on K8s: install kube-prometheus-stack via Helm. Add custom metrics to the ad server (request count, latency)." },
+        { day: 5, task: "Datadog agent: deploy as DaemonSet on K8s. Create a dashboard showing ad server RPS, latency, error rate, pod count." },
+      ]},
+      { week: 15, label: "Final Project — Build", days: [
+        { day: 1, task: "Design the full architecture: VPC (public/private/DB subnets), EKS cluster in private subnet, RDS, S3, ALB, CloudWatch. Draw it out." },
+        { day: 2, task: "Write Terraform for the full AWS infrastructure. Use modules for VPC, EKS, RDS, S3. Remote state in S3. Estimated cost: <$5/day on free tier." },
+        { day: 3, task: "GitHub Actions pipeline: test → Docker build → push to ECR → terraform apply (infra changes) → kubectl apply (app changes)." },
+        { day: 4, task: "Add monitoring: Datadog or Prometheus/Grafana. Create runbook: what to do when ad server latency exceeds 100ms." },
+        { day: 5, task: "Ansible: write a playbook for any remaining EC2 configuration. Integrate with Terraform output for dynamic inventory." },
+      ]},
+      { week: 16, label: "Final Project + Interview Prep", days: [
+        { day: 1, task: "Full end-to-end test: push a code change, watch the pipeline run, verify it deploys to AWS, check Datadog dashboard updates." },
+        { day: 2, task: "Write the project README: architecture diagram (draw.io or Excalidraw), what it does, tech stack, how to deploy from scratch." },
+        { day: 3, task: "Interview blitz: all 12 quizzes in the app. Target 80%+ on each. Review any topics below 80% with the study notes." },
+        { day: 4, task: "Mock interviews: AI interview practice for K8s, Terraform, AWS, CI/CD. Time your answers — aim for 2-3 min per question." },
+        { day: 5, task: "Final: update LinkedIn (add project + skills), update resume with the project, apply to PubMatic / InMobi / MiQ / Criteo." },
+      ]},
+    ]
+  }
+];
+
+
 const CAT = { adtech: { label: "AdTech", color: "#DB2777", bg: "#FDF2F8" }, devops: { label: "DevOps", color: "#4F46E5", bg: "#EEF2FF" } };
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -539,6 +672,9 @@ export default function App() {
   const [iInput, setIInput] = useState("");
   const [iLoading, setILoading] = useState(false);
   const [iTopic, setITopic]   = useState(null);
+  // Roadmap
+  const [roadmapDone, setRoadmapDone] = useState({});
+  const [startDate, setStartDate]     = useState(null);
   const chatRef = useRef(null);
 
   useEffect(() => {
@@ -546,6 +682,8 @@ export default function App() {
       try {
         const p = await store.get("lms2:progress"); if (p) setProgress(JSON.parse(p));
         const s = await store.get("lms2:streak"); if (s) setStreak(JSON.parse(s));
+        const rd = await store.get("lms2:roadmapDone"); if (rd) setRoadmapDone(JSON.parse(rd));
+        const sd = await store.get("lms2:startDate"); if (sd) setStartDate(sd);
       } catch (_) {}
       setLoaded(true);
     })();
@@ -553,6 +691,8 @@ export default function App() {
 
   useEffect(() => { if (loaded) store.set("lms2:progress", JSON.stringify(progress)); }, [progress, loaded]);
   useEffect(() => { if (loaded) store.set("lms2:streak", JSON.stringify(streak)); }, [streak, loaded]);
+  useEffect(() => { if (loaded) store.set("lms2:roadmapDone", JSON.stringify(roadmapDone)); }, [roadmapDone, loaded]);
+  useEffect(() => { if (loaded && startDate) store.set("lms2:startDate", startDate); }, [startDate, loaded]);
   useEffect(() => { chatRef.current?.scrollIntoView({ behavior: "smooth" }); }, [iMsg]);
 
   const markStudied = (id) => {
@@ -581,12 +721,9 @@ export default function App() {
     setView("quiz");
 
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/.netlify/functions/claude", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            ...(process.env.REACT_APP_ANTHROPIC_KEY ? { "x-api-key": process.env.REACT_APP_ANTHROPIC_KEY } : {})
-          },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 2500,
@@ -659,11 +796,8 @@ Return exactly:
     const t = TOPICS.find(t => t.id === id);
     setILoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: {
-            "Content-Type": "application/json",
-            ...(process.env.REACT_APP_ANTHROPIC_KEY ? { "x-api-key": process.env.REACT_APP_ANTHROPIC_KEY } : {})
-          },
+      const res = await fetch("/.netlify/functions/claude", {
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 800,
           system: `You are a technical interviewer at a top AdTech company (PubMatic/The Trade Desk). You're interviewing Samprati Kothari: 6 years exp, 3.5 years AdOps at Undertone/Perion (DSP/SSP/RTB/HB, 500+ targeting fixes, built AI deployment tool), 2.5 years Linux/Ansible at TCS, AWS SAA certified. Topic: ${t?.label}. Ask ONE focused interview question. After they answer: brief feedback (good/missing), the ideal answer, rating (Needs Work/Good/Excellent), then next question. Medium difficulty. Be concise and realistic.`,
@@ -683,7 +817,7 @@ Return exactly:
     setIMsg(next); setILoading(true);
     const t = TOPICS.find(t => t.id === iTopic);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/.netlify/functions/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 800,
@@ -1035,8 +1169,187 @@ Return exactly:
     );
   };
 
+  const RoadmapView = () => {
+    const phaseColors = { 1: "#0EA5E9", 2: "#8B5CF6", 3: "#059669" };
+
+    // Figure out current week/day based on startDate
+    const todayKey = today();
+    let currentWeek = null, currentDay = null;
+    if (startDate) {
+      const msPerDay = 86400000;
+      const diff = Math.floor((new Date(todayKey) - new Date(startDate)) / msPerDay);
+      if (diff >= 0 && diff < 80) {
+        currentWeek = Math.floor(diff / 5) + 1;   // week 1–16
+        currentDay  = (diff % 5) + 1;              // day 1–5
+      }
+    }
+
+    const toggleDay = (weekNum, dayNum) => {
+      const key = `w${weekNum}d${dayNum}`;
+      setRoadmapDone(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const weekDone = (weekNum) => {
+      return [1,2,3,4,5].every(d => roadmapDone[`w${weekNum}d${d}`]);
+    };
+
+    const totalDays = 80;
+    const doneDays  = Object.values(roadmapDone).filter(Boolean).length;
+
+    // Find today's task
+    const todayWeek = currentWeek ? ROADMAP.flatMap(p => p.weeks).find(w => w.week === currentWeek) : null;
+    const todayTask = todayWeek && currentDay ? todayWeek.days[currentDay - 1] : null;
+
+    return (
+      <div>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#0F172A", marginBottom: 4 }}>📅 16-Week DevOps Roadmap</div>
+          <div style={{ fontSize: 13, color: "#64748B" }}>3 phases · 80 working days · one task per day</div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ background: "#fff", border: "0.5px solid #E2E8F0", borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#0F172A" }}>Overall Progress</span>
+            <span style={{ fontSize: 12, color: "#64748B" }}>{doneDays} / {totalDays} days complete</span>
+          </div>
+          <div style={{ height: 8, background: "#F1F5F9", borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${(doneDays / totalDays) * 100}%`, background: "linear-gradient(90deg, #0EA5E9, #8B5CF6, #059669)", borderRadius: 4, transition: "width 0.3s" }} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+            {ROADMAP.map(ph => {
+              const phDays = ph.weeks.flatMap(w => w.days).length;
+              const phDoneReal = ph.weeks.reduce((acc, w) => acc + w.days.filter((_, i) => roadmapDone[`w${w.week}d${i + 1}`]).length, 0);
+              return (
+                <div key={ph.phase} style={{ fontSize: 11, color: ph.color, fontWeight: 600 }}>
+                  Phase {ph.phase}: {phDoneReal}/{phDays}d
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Start date setter */}
+        {!startDate ? (
+          <div style={{ background: "#FFF7ED", border: "1px solid #FED7AA", borderRadius: 10, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, color: "#92400E", flex: 1 }}>📌 Set your roadmap start date to track your daily task:</span>
+            <input type="date" defaultValue={todayKey} id="sd-input"
+              style={{ border: "1px solid #FED7AA", borderRadius: 6, padding: "5px 10px", fontSize: 13, color: "#0F172A" }} />
+            <button onClick={() => {
+              const v = document.getElementById("sd-input").value;
+              if (v) setStartDate(v);
+            }} style={{ background: "#F97316", color: "#fff", border: "none", borderRadius: 6, padding: "6px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              Start Roadmap
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            <div style={{ background: "#F0FDF4", border: "0.5px solid #86EFAC", borderRadius: 8, padding: "8px 14px", fontSize: 12, color: "#166534" }}>
+              🗓 Started {new Date(startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+            </div>
+            {currentWeek && <div style={{ background: "#EEF2FF", border: "0.5px solid #C7D2FE", borderRadius: 8, padding: "8px 14px", fontSize: 12, color: "#3730A3" }}>
+              📍 Week {currentWeek}, Day {currentDay}
+            </div>}
+            <button onClick={() => { setStartDate(null); store.set("lms2:startDate", ""); }}
+              style={{ background: "none", border: "0.5px solid #E2E8F0", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#94A3B8", cursor: "pointer" }}>
+              Reset date
+            </button>
+          </div>
+        )}
+
+        {/* Today's task highlight */}
+        {todayTask && (
+          <div style={{ background: "linear-gradient(135deg, #1E293B 0%, #0F172A 100%)", borderRadius: 12, padding: "16px 18px", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: -20, right: -20, fontSize: 80, opacity: 0.06 }}>📌</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>
+              TODAY — Week {currentWeek}, Day {currentDay} · {todayWeek?.label}
+            </div>
+            <div style={{ fontSize: 14, color: "#F8FAFC", lineHeight: 1.6, fontWeight: 500, marginBottom: 12 }}>{todayTask}</div>
+            <button
+              onClick={() => toggleDay(currentWeek, currentDay)}
+              style={{
+                padding: "7px 16px", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                background: roadmapDone[`w${currentWeek}d${currentDay}`] ? "#059669" : "#4F46E5",
+                color: "#fff"
+              }}>
+              {roadmapDone[`w${currentWeek}d${currentDay}`] ? "✓ Done! Great work" : "Mark as Done"}
+            </button>
+          </div>
+        )}
+
+        {/* Phase + week breakdown */}
+        {ROADMAP.map(phase => (
+          <div key={phase.phase} style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: phase.color, color: "#fff", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{phase.phase}</div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>Phase {phase.phase} — {phase.label}</div>
+                <div style={{ fontSize: 11, color: "#64748B" }}>{phase.months} · {phase.goal}</div>
+              </div>
+            </div>
+
+            {phase.weeks.map(week => {
+              const isCurrentWeek = week.week === currentWeek;
+              const allDone = weekDone(week.week);
+              const weekDoneCount = week.days.filter((_, i) => roadmapDone[`w${week.week}d${i + 1}`]).length;
+              return (
+                <div key={week.week} style={{
+                  background: "#fff", border: `0.5px solid ${isCurrentWeek ? phase.color + "60" : "#E2E8F0"}`,
+                  borderLeft: `3px solid ${allDone ? "#059669" : isCurrentWeek ? phase.color : "#E2E8F0"}`,
+                  borderRadius: "0 10px 10px 0", padding: "12px 14px", marginBottom: 8
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: phase.color, background: phase.color + "15", padding: "2px 8px", borderRadius: 4 }}>W{week.week}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#0F172A", flex: 1 }}>{week.label}</span>
+                    {isCurrentWeek && <span style={{ fontSize: 10, fontWeight: 700, color: phase.color, background: phase.color + "15", padding: "2px 8px", borderRadius: 10 }}>← THIS WEEK</span>}
+                    <span style={{ fontSize: 11, color: allDone ? "#059669" : "#94A3B8", fontWeight: 600 }}>{weekDoneCount}/5</span>
+                    {allDone && <span style={{ fontSize: 13 }}>✅</span>}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    {week.days.map((task, i) => {
+                      const dayNum = i + 1;
+                      const key = `w${week.week}d${dayNum}`;
+                      const isDone = !!roadmapDone[key];
+                      const isToday = week.week === currentWeek && dayNum === currentDay;
+                      return (
+                        <div key={dayNum} onClick={() => toggleDay(week.week, dayNum)}
+                          style={{
+                            display: "flex", alignItems: "flex-start", gap: 10, padding: "7px 10px",
+                            borderRadius: 7, cursor: "pointer",
+                            background: isToday ? phase.color + "0D" : isDone ? "#F0FDF4" : "#F8FAFC",
+                            border: `0.5px solid ${isToday ? phase.color + "30" : isDone ? "#86EFAC" : "#F1F5F9"}`,
+                            transition: "all 0.15s"
+                          }}>
+                          <div style={{
+                            width: 18, height: 18, borderRadius: "50%", flexShrink: 0, marginTop: 1,
+                            border: `2px solid ${isDone ? "#059669" : isToday ? phase.color : "#CBD5E1"}`,
+                            background: isDone ? "#059669" : "transparent",
+                            display: "flex", alignItems: "center", justifyContent: "center"
+                          }}>
+                            {isDone && <span style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>✓</span>}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: isToday ? phase.color : "#94A3B8", marginRight: 6 }}>
+                              Day {dayNum}{isToday ? " · TODAY" : ""}
+                            </span>
+                            <span style={{ fontSize: 12, color: isDone ? "#64748B" : "#334155", lineHeight: 1.5, textDecoration: isDone ? "line-through" : "none" }}>{task}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const NAV_ITEMS = [
     { id: "home", label: "Home", icon: "⊞" },
+    { id: "roadmap", label: "Roadmap", icon: "📅" },
     { id: "interview", label: "Interview Practice", icon: "🎯" }
   ];
 
@@ -1094,6 +1407,7 @@ Return exactly:
       <div style={{ flex: 1, overflowY: "auto", background: "#F8FAFC" }}>
         <div style={{ padding: "20px 24px 40px", maxWidth: 720 }}>
           {view === "home" && HomeView()}
+          {view === "roadmap" && RoadmapView()}
           {view === "study" && topicId && StudyView()}
           {view === "quiz" && topicId && QuizView()}
           {view === "result" && topicId && ResultView()}
