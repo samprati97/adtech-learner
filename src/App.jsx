@@ -1170,8 +1170,6 @@ Return exactly:
   };
 
   const RoadmapView = () => {
-    const phaseColors = { 1: "#0EA5E9", 2: "#8B5CF6", 3: "#059669" };
-
     // Figure out current week/day based on startDate
     const todayKey = today();
     let currentWeek = null, currentDay = null;
