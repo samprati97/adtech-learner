@@ -1333,7 +1333,7 @@ Return exactly:
                             <span style={{ fontSize: 10, fontWeight: 700, color: isToday ? phase.color : "#94A3B8", marginRight: 6 }}>
                               Day {dayNum}{isToday ? " · TODAY" : ""}
                             </span>
-                            <span style={{ fontSize: 12, color: isDone ? "#64748B" : "#334155", lineHeight: 1.5, textDecoration: isDone ? "line-through" : "none" }}>{task}</span>
+                            <span style={{ fontSize: 12, color: isDone ? "#64748B" : "#334155", lineHeight: 1.5, textDecoration: isDone ? "line-through" : "none" }}>{task.task}</span>
                           </div>
                         </div>
                       );
