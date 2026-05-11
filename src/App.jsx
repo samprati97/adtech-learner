@@ -725,7 +725,7 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-haiku-4-5-20251001",
           max_tokens: 2500,
           system: `You generate interview quiz questions that mirror what is ACTUALLY asked in real technical interviews. Return ONLY a valid JSON array. No markdown, no backticks — pure JSON only.`,
           messages: [{
@@ -799,14 +799,16 @@ Return exactly:
       const res = await fetch("/.netlify/functions/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 800,
+          model: "claude-haiku-4-5-20251001", max_tokens: 800,
           system: `You are a technical interviewer at a top AdTech company (PubMatic/The Trade Desk). You're interviewing Samprati Kothari: 6 years exp, 3.5 years AdOps at Undertone/Perion (DSP/SSP/RTB/HB, 500+ targeting fixes, built AI deployment tool), 2.5 years Linux/Ansible at TCS, AWS SAA certified. Topic: ${t?.label}. Ask ONE focused interview question. After they answer: brief feedback (good/missing), the ideal answer, rating (Needs Work/Good/Excellent), then next question. Medium difficulty. Be concise and realistic.`,
           messages: [{ role: "user", content: `Start the ${t?.label} interview. First question please.` }]
         })
       });
       const data = await res.json();
-      setIMsg([{ role: "assistant", content: data.content?.find(b => b.type === "text")?.text || "Let's begin!" }]);
-    } catch { setIMsg([{ role: "assistant", content: "Connection error. Please try again." }]); }
+      const text = data.content?.find(b => b.type === "text")?.text;
+      if (!text) throw new Error(data.error?.message || "Empty response");
+      setIMsg([{ role: "assistant", content: text }]);
+    } catch (e) { setIMsg([{ role: "assistant", content: `Error: ${e.message}. Please try again.` }]); }
     setILoading(false);
   };
 
@@ -820,7 +822,7 @@ Return exactly:
       const res = await fetch("/.netlify/functions/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 800,
+          model: "claude-haiku-4-5-20251001", max_tokens: 800,
           system: `Technical interviewer at AdTech company. Candidate: Samprati Kothari, 3.5 yrs AdOps (RTB/HB/DSP/SSP, Undertone), 2.5 yrs Linux/Ansible, AWS SAA cert. Topic: ${t?.label}. Give feedback on their answer (good/missing), ideal answer briefly, rate (Needs Work/Good/Excellent), ask next question. Concise.`,
           messages: [
             { role: "user", content: `Start the ${t?.label} interview.` },
@@ -829,7 +831,9 @@ Return exactly:
         })
       });
       const data = await res.json();
-      setIMsg([...next, { role: "assistant", content: data.content?.find(b => b.type === "text")?.text || "Next question..." }]);
+      const text = data.content?.find(b => b.type === "text")?.text;
+      if (!text) throw new Error(data.error?.message || "Empty response");
+      setIMsg([...next, { role: "assistant", content: text }]);
     } catch { setIMsg([...next, { role: "assistant", content: "Connection error. Try again." }]); }
     setILoading(false);
   };
